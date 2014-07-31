@@ -33,22 +33,25 @@ class Client(object):
 
 	@property
 	def id(self):
-		return self.profileid
+		return self.profileid + '/'
 
 	@property
 	def payment_methods(self):
+		# remember to check for acctid != 1
 		return map(lambda record: CreditCard(record) if 'expiry' in record else BankAccount(record),
-			requests.get("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID)).json())
+			requests.get("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json())
 
 	def delete(self):
-		requests.delete("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID))
+		requests.delete("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))
 
 	def save(self):
-		self.deserialize(requests.put("https://%s:%s/cardconnect/rest/profile" % (Config.HOSTNAME, Config.PORT), self.serialize()).json())
+		self.deserialize(requests.put("https://%s:%s/cardconnect/rest/profile" % (Config.HOSTNAME, Config.PORT), self.serialize(), auth=(Config.USERNAME, Config.PASSWORD)).json())
 
 	@staticmethod
 	def retrieve(id):
-		return Client(requests.get("%s/profile/%s/%s/" % (Config.BASE_URL, id, Config.MERCHANT_ID)).json())
+		# profile/{id}/{merchid} returns 404 -- must specify account number (numbering scheme starts at 1)
+		# profile/{id}/{acctid}/{merchid} returns a LIST of accounts
+		return Client(requests.get("https://%s:%s/cardconnect/rest/profile/%s/1/%s" % (Config.HOSTNAME, Config.PORT, id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()[0])
 
 	@staticmethod
 	def create(**kwargs):
