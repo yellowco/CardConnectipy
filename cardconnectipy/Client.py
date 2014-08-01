@@ -1,4 +1,6 @@
 from Address import Address
+from BankAccount import BankAccount
+from CreditCard import CreditCard
 from DriversLicense import DriversLicense
 import Config
 import requests
@@ -24,12 +26,14 @@ class Client(object):
 			'name':"%s %s" % (self.address.first_name, self.address.last_name),
 			'country':self.address.country,
 			'city':self.address.city,
-			'profileid':self.profileid
+			'profileid':self.profileid,
+			'defaultacct':'Y'
 		}
 	
 	def deserialize(self, data):
 		for key, value in data.items():
 			setattr(self, key, value)
+		return self
 
 	@property
 	def id(self):
@@ -45,13 +49,15 @@ class Client(object):
 		requests.delete("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))
 
 	def save(self):
-		self.deserialize(requests.put("https://%s:%s/cardconnect/rest/profile" % (Config.HOSTNAME, Config.PORT), self.serialize(), auth=(Config.USERNAME, Config.PASSWORD)).json())
+		return self.deserialize(requests.put("https://%s:%s/cardconnect/rest/profile" % (Config.HOSTNAME, Config.PORT), self.serialize(), auth=(Config.USERNAME, Config.PASSWORD)).json())
 
 	@staticmethod
 	def retrieve(id):
-		# profile/{id}/{merchid} returns 404 -- must specify account number (numbering scheme starts at 1)
-		# profile/{id}/{acctid}/{merchid} returns a LIST of accounts
-		return Client(requests.get("https://%s:%s/cardconnect/rest/profile/%s/1/%s" % (Config.HOSTNAME, Config.PORT, id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()[0])
+		response = requests.get("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()
+		for account in response:
+			if account['defaultacct'] == 'Y':
+				return Client(**account)
+		return None
 
 	@staticmethod
 	def create(**kwargs):
