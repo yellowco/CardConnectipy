@@ -45,7 +45,7 @@ class PaymentMethod(object):
 		if(self.acctid == None):
 			# account numbers must be tokens
 			self.account = self.tokenize()
-		self.deserialize(requests.put('%s/profile' % (Config.BASE_URL), self.serialize(), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
+		self.deserialize(requests.put('%s/profile' % (Config.BASE_URL), data=json.dumps(self.serialize()), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
 
 	@staticmethod
 	def retrieve(id):
