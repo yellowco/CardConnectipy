@@ -21,7 +21,6 @@ class ClientTest(unittest.TestCase):
 		self.assertIsNotNone(Client.retrieve(client.id), "Could not retrieve the client from the server")
 		self.assertEqual(Client.retrieve(client.id).email, client.email, "Email attribute not retrieved from the server")
 		self.assertIsNone(Client.retrieve(-1), "An invalid client was returned from the server")
-		self.assertRaises(Exception, Client.all)
 		id = client.id
 		client.email = 'newemail@mail.com'
 		self.assertEqual(client.save().id, id, "The server created a new id instead of updating the existing one")

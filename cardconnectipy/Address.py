@@ -12,7 +12,7 @@ class Address(object):
 		self.__dict__.update(**kwargs)
 
 	def serialize(self):
-		data = {
+		return {
 			'address':"%s %s" % (self.street1, self.street2) if self.street1 and self.street2 else None,
 			'region':self.state,
 			'phone':self.phone,
@@ -21,4 +21,3 @@ class Address(object):
 			'country':self.country,
 			'city':self.city
 		}	
-		return dict((k, v) for k, v in data.iteritems() if v)

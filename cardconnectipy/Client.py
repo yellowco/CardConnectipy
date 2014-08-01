@@ -18,6 +18,7 @@ class Client(object):
 
 	def serialize(self):
 		data = {
+			'profile':"%s/%s" % (self.profileid, self.acctid) if self.profileid and self.acctid else None,
 			'ssnl4':self.ssn[-4:] if self.ssn else None,
 			'email':self.email,
 			'merchid':Config.MERCHANT_ID,
@@ -26,7 +27,7 @@ class Client(object):
 		}
 		data.update(self.billing_address.serialize())
 		data.update(self.drivers_license.serialize())
-		return dict((k, v) for k, v in data.iteritems() if v)
+		return data
 	
 	def deserialize(self, data):
 		for key, value in data.items():
@@ -57,9 +58,8 @@ class Client(object):
 	@staticmethod
 	def retrieve(id):
 		response = requests.get("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()
-		print(response)
 		for account in response:
-			if account['defaultacct'] == 'Y':
+			if account.get('defaultacct') == 'Y':
 				return Client(**account)
 		return None
 
