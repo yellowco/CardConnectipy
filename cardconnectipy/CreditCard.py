@@ -16,21 +16,31 @@ class CreditCard(PaymentMethod):
 		return CreditCard(**kwargs)
 
 	# base AUTHORIZATION request
-	def auth(amount, cvv):
-		raise NotImplementedError
+	def auth(amount=None, cvv=None, **kwargs):
+		if(cvv == None):
+			cvv = getattr(self, 'cvv', None)
+		return(super(CreditCard, self).auth(amount=amount, cvv2=cvv, **kwargs))
 
-	# CAPTURE request -- will call authorize first
-	def sale(amount, cvv):
-		raise NotImplementedError
+	def capture(amount=None, cvv=None, **kwargs):
+		if(cvv == None):
+			cvv = getattr(self, 'cvv', None)
+		return(super(CreditCard, self).capture(amount=amount, cvv2=cvv, **kwargs))
 
-	def void(amount, retref):
-		raise NotImplementedError
+	# amount to be gained by the company
+	def sale(amount=None, cvv=None):
+		if(cvv == None):
+			cvv = getattr(self, 'cvv', None)
+		return(self.capture(amount=amount, cvv=cvv))
 
-	# REFUND request
-	def credit(amount, cvv):
-		raise NotImplementedError
+	# amount to be sent back to user -- amount is therefore treated as NEGATIVE in AUTH request
+	# input as a POSITIVE number
+	def credit(amount=None, cvv=None):
+		if(cvv == None):
+			cvv = getattr(self, 'cvv', None)
+		return(self.capture(amount=-amount, cvv=cvv))
 
 	# shorthand for auth(0, cvv)
-	def verify(cvv):
-		raise NotImplementedError
-
+	def verify(cvv=None):
+		if(cvv == None):
+			cvv = getattr(self, 'cvv', None)
+		return self.auth(0, cvv=cvv)
