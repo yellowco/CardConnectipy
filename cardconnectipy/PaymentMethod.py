@@ -1,10 +1,9 @@
-from Client import Client
 import Config
 import requests
 
 class PaymentMethod(object):
 	def __init__(self, **kwargs):
-		self.profileid = None
+		self.client = None
 		self.acctid = None
 		self.account = None	# tokenized card / bank account number
 		self.accttype = None	# oneof PPAL, PAID, GIFT, PDEBIT in PUT, oneof VISA, MC, DISC, ECHK in GET
@@ -19,13 +18,13 @@ class PaymentMethod(object):
 			'accttype':self.accttype,
 		}
 
+	@property
+	def profileid(self):
+		return self.client.id
+
 	def deserialize(self, data):
 		for key, value in data.items():
 			setattr(self, key, value)
-
-	@property
-	def client(self):
-		Client.retrieve(self.profileid)
 
 	@property
 	def id(self):
@@ -44,9 +43,9 @@ class PaymentMethod(object):
 				"account":self.account,
 				"tokenize":"Y"
 			}
-			data = requests.put("https://%s:%s/cardconnect/auth" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID), data=payload, auth=(Config.USERNAME, Config.PASSWORD)).json()
+			data = requests.put("https://%s:%s/cardconnect/auth" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID), data=payload, auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json()
 			self.account = data['token']
-		self.deserialize(requests.put("https://%s:%s/cardconnect/rest/profile" % (Config.HOSTNAME, Config.PORT), self.serialize(), auth=(Config.USERNAME, Config.PASSWORD)).json())
+		self.deserialize(requests.put("https://%s:%s/cardconnect/rest/profile" % (Config.HOSTNAME, Config.PORT), self.serialize(), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
 
 	@staticmethod
 	def retrieve(profileid, acctid):
