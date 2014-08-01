@@ -32,7 +32,7 @@ class PaymentMethod(object):
 
 	def delete(self):
 		if(self.acctid != None):
-			requests.delete("https://%s:%s/cardconnect/rest/profile/%s/%s" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))
+			requests.delete("%s/profile/%s/%s" % (Config.BASE_URL, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))
 
 	def save(self):
 		self.client.save()
@@ -43,13 +43,14 @@ class PaymentMethod(object):
 				"account":self.account,
 				"tokenize":"Y"
 			}
-			data = requests.put("https://%s:%s/cardconnect/auth" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID), data=payload, auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json()
+			data = requests.put("%s/auth" % (Config.BASE_URL), data=payload, auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json()
 			self.account = data['token']
-		self.deserialize(requests.put("https://%s:%s/cardconnect/rest/profile" % (Config.HOSTNAME, Config.PORT), self.serialize(), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
+		self.deserialize(requests.put("%s/profile" % (Config.BASE_URL), self.serialize(), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
 
 	@staticmethod
-	def retrieve(profileid, acctid):
-		return PaymentMethod(requests.get("https://%s:%s/cardconnect/rest/profile/%s/%s/%s/" % (Config.HOSTNAME, Config.PORT, profileid, acctid, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()[0])
+	def retrieve(id):
+		# if of form "<profileid>/<acctid>"
+		return PaymentMethod(requests.get("%s/profile/%s/%s/" % (Config.BASE_URL, id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()[0])
 
 	@staticmethod
 	def create(**kwargs):

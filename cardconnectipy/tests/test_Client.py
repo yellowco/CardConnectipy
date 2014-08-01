@@ -1,11 +1,11 @@
-from .. import Config
+from ..Config import config
 from ..Client import Client
 import unittest
 import datetime
 
 class ClientTest(unittest.TestCase):
 	def setUp(self):
-		Config.config(hostname='fts.prinpay.com',
+		config(hostname='fts.prinpay.com',
 			port='6443',
 			merchant_id='496160873888',
 			username='testing',

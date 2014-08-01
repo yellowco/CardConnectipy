@@ -1,6 +1,12 @@
 from PaymentMethod import PaymentMethod
 
 class CreditCard(PaymentMethod):
+	VISA = None
+	MASTERCARD = None
+	DISCOVER = None
+	AMERICAN_EXPRESS = None
+	DINERS_CLUB = None
+	JCB = None
 	def __init__(self, **kwargs):
 		self.expiry = None
 		PaymentMethod.__init__(self, **kwargs)
@@ -27,3 +33,4 @@ class CreditCard(PaymentMethod):
 	# shorthand for auth(0, cvv)
 	def verify(cvv):
 		raise NotImplementedError
+

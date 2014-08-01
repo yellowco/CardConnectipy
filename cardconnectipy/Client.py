@@ -5,6 +5,7 @@ from BankAccount import BankAccount
 from DriversLicense import DriversLicense
 import Config
 import requests
+import json
 
 class Client(object):
 	def __init__(self, **kwargs):
@@ -16,20 +17,16 @@ class Client(object):
 		self.__dict__.update(kwargs)
 
 	def serialize(self):
-		return {
-			'address':"%s %s" % (self.billing_address.street1, self.billing_address.street2),
-			'region':self.billing_address.state,
-			'phone':self.billing_address.phone,
-			'postal':self.billing_address.postal,
-			'ssnl4':self.ssn[-4:] if self.ssn != None else None,
+		data = {
+			'ssnl4':self.ssn[-4:] if self.ssn else None,
 			'email':self.email,
-			'license':"%s:%s" % (self.drivers_license.state, self.drivers_license.number),
-			'name':"%s %s" % (self.billing_address.first_name, self.billing_address.last_name),
-			'country':self.billing_address.country,
-			'city':self.billing_address.city,
-			'profileid':self.profileid,
-			'defaultacct':'Y'
+			'merchid':Config.MERCHANT_ID,
+			'defaultacct':'Y',
+			'profileupdate':'Y'
 		}
+		data.update(self.billing_address.serialize())
+		data.update(self.drivers_license.serialize())
+		return dict((k, v) for k, v in data.iteritems() if v)
 	
 	def deserialize(self, data):
 		for key, value in data.items():
@@ -55,11 +52,12 @@ class Client(object):
 		requests.delete("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))
 
 	def save(self):
-		return self.deserialize(requests.put("https://%s:%s/cardconnect/rest/profile" % (Config.HOSTNAME, Config.PORT), self.serialize(), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
+		return self.deserialize(requests.put("https://%s:%s/cardconnect/rest/profile" % (Config.HOSTNAME, Config.PORT), data=json.dumps(self.serialize()), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
 
 	@staticmethod
 	def retrieve(id):
 		response = requests.get("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()
+		print(response)
 		for account in response:
 			if account['defaultacct'] == 'Y':
 				return Client(**account)
