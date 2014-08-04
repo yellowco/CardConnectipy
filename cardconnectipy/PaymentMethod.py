@@ -68,15 +68,17 @@ class PaymentMethod(object):
 		# cvv, etc. in here as well
 		payload = dict(payload.items() + kwargs.items() + self.serialize().items())
 		resp = requests.put('%s/auth' % (Config.BASE_URL), auth=(Config.USERNAME, Config.PASSWORD), data=json.dumps(payload), headers=Config.HEADERS['json']).json()
+		# custom filtering of response codes would be preferred to further rule out suspicious transactions
+		# suggested filter (by the app) by cvvresp, authcode, etc.
 		return (resp['respstat'] == 'A', resp['retref'], resp)
 
 	# shorthand for auth(0)
-	def verify(self):
-		return self.auth(amount='0')
+	def verify(self, **kwargs):
+		return self.auth(amount='0', **kwargs)
 
 	def tokenize(self):
 		if(self.account != None):
-			return(self.auth(amount='0', tokenize='Y'))[2]['token']
+			return self.auth(amount='0', tokenize='Y')[2]['token']
 
 	# utilize AUTHORIZE-CAPTURE request feature
 	# cf. http://bit.ly/1qzs8p1 for additional fields to present to the AUTHORIZATION request payload
