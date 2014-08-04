@@ -1,6 +1,7 @@
 # because I keep trigger-twiching "make" in the shell
 all: clean
-	python ex.py
+	nosetests *py
+	make clean
 
 clean:
-	rm -f *pyc */*pyc
+	rm -f ../*pyc *pyc

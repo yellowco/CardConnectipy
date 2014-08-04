@@ -43,6 +43,7 @@ class PaymentMethod(object):
 			requests.delete('%s/profile/%s/%s' % (Config.BASE_URL, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))
 
 	def save(self):
+		# do we need to call client.save () if client calls payment_method.save()
 		# self.client.save()
 		if(self.acctid == None):
 			# account numbers must be tokens
