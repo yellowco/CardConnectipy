@@ -9,7 +9,6 @@ class PaymentMethod(object):
 		self.account = None	# tokenized card / bank account number
 		self.accttype = None	# oneof PPAL, PAID, GIFT, PDEBIT in PUT, oneof VISA, MC, DISC, ECHK in GET
 		self.defaultacct = None
-		self.retref = None	# the current tx being examined
 		self.__dict__.update(kwargs)
 
 	def serialize(self):
@@ -81,7 +80,7 @@ class PaymentMethod(object):
 		# suggested filter (by the app) by cvvresp, authcode, etc.
 		return (resp['respstat'] == 'A', resp['retref'], resp)
 
-	# shorthand for auth(0)
+	# shorthand for auth(0) -- sees if the payment method is in good standing
 	def verify(self, **kwargs):
 		return PaymentMethod.auth(self, amount='0', **kwargs)
 
@@ -95,12 +94,18 @@ class PaymentMethod(object):
 	def sale(self, amount=None, **kwargs):
 		return PaymentMethod.auth(self, amount=amount, capture='Y', **kwargs)
 
+	# money to be handed back to the end-user -- given in POSITIVE amount
+	def credit(self, amount=None, **kwargs):
+		return PaymentMethod.auth(self, amount=-amount, capture='Y', **kwargs)
+
+	# given an AUTH id, confirm the transaction and move to settlement
 	def capture(self, amount=None):
-		if self.retref == None:
+		if 'retref' not in self.__dict__:
 			raise AttributeError("payment method retref not set")
 		Transaction.retrieve(id=self.retref).capture(amount=amount)
 
+	# given an AUTH id, decide to void all or part of the transaction
 	def void(self, amount=None):
-		if self.retref == None:
+		if 'retref' not in self.__dict__:
 			raise AttributeError("payment method retref not set")
 		Transaction.retrieve(id=self.retref).void(amount=amount)

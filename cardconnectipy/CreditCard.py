@@ -74,12 +74,10 @@ class CreditCard(PaymentMethod):
 	def capture(self, amount, cvv=None):
 		return super(CreditCard, self).capture(amount=amount, cvv2=cvv)
 
-	# amount to be sent back to user -- amount is therefore treated as NEGATIVE in AUTH request
-	# input as a POSITIVE number
 	def credit(self, amount, cvv=None):
 		if(cvv == None):
 			cvv = getattr(self, 'cvv', None)
-		return self.sale(amount=-amount, cvv=cvv)
+		return super(CreditCard, self).credit(amount=amount, cvv=cvv)
 
 	def balance_inquiry(self, amount, cvv=None):
 		raise NotImplementedError

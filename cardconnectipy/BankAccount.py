@@ -57,10 +57,8 @@ class BankAccount(PaymentMethod):
 	def capture(self, amount):
 		return super(BankAccount, self).capture(amount=amount)
 
-	# amount to be sent back to user -- amount is therefore treated as NEGATIVE in AUTH request
-	# input as a POSITIVE number
 	def credit(self, amount):
-		return self.sale(amount=-amount)
+		return super(BankAccount, self).credit(amount=amount)
 
 	###
 	# housekeeping functions
