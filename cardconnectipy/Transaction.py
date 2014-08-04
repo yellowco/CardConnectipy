@@ -74,11 +74,20 @@ class Transaction(object):
 	def inquire(self):
 		return(Transaction.inquire(self.retref))
 
-	# TODO: convert to minor currency
 	@staticmethod
 	def deposit(**kwargs):
 		url = '%s/deposit?merchid=%s&' % (Config.BASE_URL, Config.MERCHANT_ID) + '&'.join([str(k) + '=' + str(v) for k, v in kwargs.items()])
 		resp = requests.get(url, auth=(Config.USERNAME, Config.PASSWORD)).json()
+		# convert to minor USD units
+		# cf. http://bit.ly/1zLWxGi
+		for deposit in resp:
+			deposit['amount'] *= 100
+			deposit['cbackamnt'] *= 100
+			deposit['feeamnt'] *= 100
+			for tx in deposit['txns']:
+				tx['feeamnt'] *= 100
+				tx['depamnt'] *= 100
+		return resp
 
 	@staticmethod
 	def settlement_status(**kwargs):
