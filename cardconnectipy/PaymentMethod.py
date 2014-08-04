@@ -63,10 +63,11 @@ class PaymentMethod(object):
 
 	# base AUTHORIZATION request
 	# cf. http://bit.ly/1ohnJEb for 3DSecure support
-	def auth(self, amount=None, **kwargs):
+	def auth(self, amount=None, currency=None, **kwargs):
 		payload = {
 			'merchid':Config.MERCHANT_ID,
-			'amount':str(amount),
+			'amount':'' if amount == None else str(amount),
+			'currency':'USD' if currency == None else currency
 		}
 		if(self.client != None):
 			payload.update(self.client.serialize())
@@ -74,19 +75,20 @@ class PaymentMethod(object):
 		payload.update(kwargs)
 		payload.update(self.serialize())
 		resp = requests.put('%s/auth' % (Config.BASE_URL), auth=(Config.USERNAME, Config.PASSWORD), data=json.dumps(payload), headers=Config.HEADERS['json']).json()
+		resp['amount'] = str(int(float(resp['amount']))  * 100)
 		# custom filtering of response codes would be preferred to further rule out suspicious transactions
 		# suggested filter (by the app) by cvvresp, authcode, etc.
 		return (resp['respstat'] == 'A', resp['retref'], resp)
 
 	# shorthand for auth(0)
 	def verify(self, **kwargs):
-		return self.auth(amount='0', **kwargs)
+		return PaymentMethod.auth(self, amount='1', **kwargs)
 
 	def tokenize(self):
 		if(self.account != None):
-			return self.auth(amount='0', tokenize='Y')[2]['token']
+			return PaymentMethod.auth(self, amount='0', tokenize='Y')[2]['token']
 
 	# utilize AUTHORIZE-CAPTURE request feature
 	# cf. http://bit.ly/1qzs8p1 for additional fields to present to the AUTHORIZATION request payload
 	def capture(self, amount=None, **kwargs):
-		return self.auth(amount, capture='Y', **kwargs)
+		return PaymentMethod.auth(self, amount=amount, capture='Y', **kwargs)

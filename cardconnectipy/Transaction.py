@@ -38,7 +38,7 @@ class Transaction(object):
 			payload['amount'] = amount
 		resp = requests.put('%s/void' % (Config.BASE_URL), auth=(Config.USERNAME, Config.PASSWORD), data=json.dumps(payload), headers=Config.HEADERS['json']).json()
 		if(('amount' in resp) and (resp['amount'] < 1.)):
-			resp['amount'] *= 100
+			resp['amount'] = str(int(float(resp['amount']))  * 100)
 
 		# update the amount remaining of the transaction
 		self.deserialize(self.inquire())
@@ -56,7 +56,7 @@ class Transaction(object):
 			payload['amount'] = amount
 		resp = requests.put('%s/refund' % (Config.BASE_URL), auth=(Config.USERNAME, Config.PASSWORD), data=json.dumps(payload), headers=Config.HEADERS['json']).json()
 		if(('amount' in resp) and (resp['amount'] < 1.)):
-			resp['amount'] *= 100
+			resp['amount'] = str(int(float(resp['amount']))  * 100)
 
 		# update the amount remaining of the transaction
 		self.deserialize(self.inquire())
@@ -67,7 +67,7 @@ class Transaction(object):
 	def inquire(retref=None):
 		resp = requests.get('%s/inquire/%s/%s' % (Config.BASE_URL, retref, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()
 		if(('amount' in resp) and (resp['amount'] < 1.)):
-			resp['amount'] *= 100
+			resp['amount'] = str(int(float(resp['amount']))  * 100)
 
 		return(resp['respstat'] == 'A', resp['retref'], resp)
 
@@ -81,12 +81,12 @@ class Transaction(object):
 		# convert to minor USD units
 		# cf. http://bit.ly/1zLWxGi
 		for deposit in resp:
-			deposit['amount'] *= 100
-			deposit['cbackamnt'] *= 100
-			deposit['feeamnt'] *= 100
+			deposit['amount'] = str(int(float(deposit['amount']))  * 100)
+			deposit['cbackamnt'] = str(int(float(deposit['cbackamnt']))  * 100)
+			deposit['feeamnt'] = str(int(float(deposit['feeamnt']))  * 100)
 			for tx in deposit['txns']:
-				tx['feeamnt'] *= 100
-				tx['depamnt'] *= 100
+				tx['feeamnt'] = str(int(float(tx['feeamnt']))  * 100)
+				tx['depamnt'] = str(int(float(tx['depamnt']))  * 100)
 		return resp
 
 	@staticmethod
