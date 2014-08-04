@@ -53,16 +53,19 @@ class Client(object):
 		return self._payment_methods
 	
 	def add_payment_method(self, method):
+		method.client = self
 		self._payment_methods.append(method)		
 
 	def delete(self):
 		requests.delete("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))
 
 	def save(self):
+		# need to get own profileid to pass onto payment_methods
+		resp = self.deserialize(requests.put("https://%s:%s/cardconnect/rest/profile" % (Config.HOSTNAME, Config.PORT), data=json.dumps(self.serialize()), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
 		for payment_method in self.payment_methods:
 			if not payment_method.acctid:
 				payment_method.save() # this isn't quite right, doesn't track modified cards.
-		return self.deserialize(requests.put("https://%s:%s/cardconnect/rest/profile" % (Config.HOSTNAME, Config.PORT), data=json.dumps(self.serialize()), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
+		return resp
 
 	@staticmethod
 	def retrieve(id):
