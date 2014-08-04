@@ -1,4 +1,4 @@
-import time
+import datetime
 from PaymentMethod import PaymentMethod
 
 class CreditCard(PaymentMethod):
@@ -30,11 +30,11 @@ class CreditCard(PaymentMethod):
 
 	@property
 	def expiration_date(self):
-		return time.strptime(self.expiry, "%m%Y")
+		return datetime.datetime.strptime(self.expiry, "%m%Y")
 
 	@expiration_date.setter
 	def expiration_date(self, value):
-		self.expiry = time.strftime('%m%Y', value)
+		self.expiry = value.strftime('%m%Y')
 
 	@property
 	def card_type(self):

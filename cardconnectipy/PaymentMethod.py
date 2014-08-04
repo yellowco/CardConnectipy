@@ -9,7 +9,8 @@ class PaymentMethod(object):
 		self.account = None	# tokenized card / bank account number
 		self.accttype = None	# oneof PPAL, PAID, GIFT, PDEBIT in PUT, oneof VISA, MC, DISC, ECHK in GET
 		self.defaultacct = None
-		self.__dict__.update(kwargs)
+		for key in kwargs.keys():
+			setattr(self, key, kwargs.pop(key))
 
 	def serialize(self):
 		return {
@@ -42,14 +43,11 @@ class PaymentMethod(object):
 			requests.delete('%s/profile/%s/%s' % (Config.BASE_URL, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))
 
 	def save(self):
-		for key in self.__dict__:
-			if self.__dict__[key] == None:
-				raise ValueError('all payment method fields are required')
-
-		self.client.save()
+		# self.client.save()
 		if(self.acctid == None):
 			# account numbers must be tokens
 			self.account = self.tokenize()
+		print self.__dict__
 		self.deserialize(requests.put('%s/profile' % (Config.BASE_URL), data=json.dumps(self.serialize()), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
 
 	@staticmethod
