@@ -85,6 +85,7 @@ class PaymentMethod(object):
 	def verify(self, **kwargs):
 		return PaymentMethod.auth(self, amount='0', **kwargs)
 
+	# tokenize the account number
 	def tokenize(self):
 		if(self.account != None):
 			return PaymentMethod.auth(self, amount='0', tokenize='Y')[2]['token']

@@ -4,13 +4,67 @@ class BankAccount(PaymentMethod):
 	CHECKING = 1
 	SAVINGS = 2
 	def __init__(self, **kwargs):
-		# bank routing number -- self.account is now the banking account number instead
 		self.bankaba = None
 		super(BankAccount, self).__init__(**kwargs)
+
+	###
+	# API calls
+	###
 
 	@staticmethod
 	def create(**kwargs):
 		return BankAccount(**kwargs)
+
+	@property
+	def account_number(self):
+		return self.account
+
+	@account_number.setter
+	def account_number(self, value):
+		self.account = value
+
+	@property
+	def routing_number(self):
+		return self.bankaba
+
+	@routing_number.setter
+	def routing_number(self, value):
+		self.bankaba = value
+
+	@property
+	def type(self):
+		raise NotImplementedError
+
+	@type.setter
+	def type(self, value):
+		raise NotImplementedError
+
+	@property
+	def data(self):
+		raise NotImplementedError
+
+	# amount to be gained by the company
+	def sale(self, amount):
+		return super(BankAccount, self).sale(amount=amount)
+
+	def authorization(self, amount):
+		return super(BankAccount, self).auth(amount=amount)
+
+	# force transaction
+	def preauthorization(self, amount):
+		raise NotImplementedError
+
+	def capture(self, amount):
+		return super(BankAccount, self).capture(amount=amount)
+
+	# amount to be sent back to user -- amount is therefore treated as NEGATIVE in AUTH request
+	# input as a POSITIVE number
+	def credit(self, amount):
+		return self.sale(amount=-amount)
+
+	###
+	# housekeeping functions
+	###
 
 	def serialize(self):
 		dict = super(BankAccount, self).serialize()
@@ -19,31 +73,6 @@ class BankAccount(PaymentMethod):
 		})
 		return dict
 
-	def auth(self, amount=None, bankaba=None, **kwargs):
-		if(bankaba == None):
-			bankaba = getattr(self, 'bankaba', None)
-		return super(BankAccount, self).auth(amount=amount, bankaba=bankaba, **kwargs)
-
-	def capture(self, amount=None, bankaba=None, **kwargs):
-		if(bankaba == None):
-			bankaba = getattr(self, 'bankaba', None)
-		return super(BankAccount, self).capture(amount=amount, bankaba=bankaba, **kwargs)
-
-	# amount to be gained by the company
-	def sale(self, amount=None, bankaba=None):
-		if(bankaba == None):
-			bankaba = getattr(self, 'bankaba', None)
-		return self.capture(amount=amount, bankaba=bankaba)
-
-	# amount to be sent back to user -- amount is therefore treated as NEGATIVE in AUTH request
-	# input as a POSITIVE number
-	def credit(self, amount=None, bankaba=None):
-		if(bankaba == None):
-			bankaba = getattr(self, 'bankaba', None)
-		return self.capture(amount=-amount, bankaba=bankaba)
-
-	# shorthand for auth(0, bankaba)
-	def verify(self, bankaba=None):
-		if(bankaba == None):
-			bankaba = getattr(self, 'bankaba', None)
-		return super(BankAccount, self).verify(bankaba=bankaba)
+	# shorthand for auth(0, cvv)
+	def verify(self):
+		return super(BankAccount, self).verify()
