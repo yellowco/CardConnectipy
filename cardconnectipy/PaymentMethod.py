@@ -9,8 +9,11 @@ class PaymentMethod(object):
 		self.account = None	# tokenized card / bank account number
 		self.accttype = None	# oneof PPAL, PAID, GIFT, PDEBIT in PUT, oneof VISA, MC, DISC, ECHK in GET
 		self.defaultacct = None
+		dict_keys = inspect.getmembers(PaymentMethod)
 		for key in kwargs.keys():
-			setattr(self, key, kwargs.pop(key))
+			# cf. http://bit.ly/1qO35ig
+			if key in [ k for k, v in self.__class__.__dict__.items() if type(v) is property ]:
+				setattr(self, key, kwargs.pop(key))
 
 	def serialize(self):
 		return {
@@ -48,7 +51,6 @@ class PaymentMethod(object):
 		if(self.acctid == None):
 			# account numbers must be tokens
 			self.account = self.tokenize()
-		print self.__dict__
 		self.deserialize(requests.put('%s/profile' % (Config.BASE_URL), data=json.dumps(self.serialize()), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
 
 	@staticmethod

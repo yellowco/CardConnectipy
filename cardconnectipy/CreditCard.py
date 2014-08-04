@@ -30,11 +30,11 @@ class CreditCard(PaymentMethod):
 
 	@property
 	def expiration_date(self):
-		return datetime.datetime.strptime(self.expiry, "%m%Y")
+		return datetime.datetime.strptime(self.expiry, "%m%y")
 
 	@expiration_date.setter
 	def expiration_date(self, value):
-		self.expiry = value.strftime('%m%Y')
+		self.expiry = value.strftime('%m%y')
 
 	@property
 	def card_type(self):
