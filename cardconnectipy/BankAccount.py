@@ -43,7 +43,6 @@ class BankAccount(PaymentMethod):
 	def data(self):
 		raise NotImplementedError
 
-	# amount to be gained by the company
 	def sale(self, amount):
 		return super(BankAccount, self).sale(amount=amount)
 
@@ -51,7 +50,7 @@ class BankAccount(PaymentMethod):
 		return super(BankAccount, self).auth(amount=amount)
 
 	# force transaction
-	def preauthorization(self, amount):
+	def force(self, amount):
 		raise NotImplementedError
 
 	def capture(self, amount):
@@ -70,7 +69,3 @@ class BankAccount(PaymentMethod):
 			'bankaba':'' if self.bankaba == None else self.bankaba
 		})
 		return dict
-
-	# shorthand for auth(0, cvv)
-	def verify(self):
-		return super(BankAccount, self).verify()

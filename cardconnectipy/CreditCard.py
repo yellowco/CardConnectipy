@@ -56,7 +56,6 @@ class CreditCard(PaymentMethod):
 	def data(self):
 		raise NotImplementedError
 
-	# amount to be gained by the company
 	def sale(self, amount, cvv=None):
 		if(cvv == None):
 			cvv = getattr(self, 'cvv', None)
