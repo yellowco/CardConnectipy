@@ -9,7 +9,6 @@ class PaymentMethod(object):
 		self.account = None	# tokenized card / bank account number
 		self.accttype = None	# oneof PPAL, PAID, GIFT, PDEBIT in PUT, oneof VISA, MC, DISC, ECHK in GET
 		self.defaultacct = None
-		dict_keys = inspect.getmembers(PaymentMethod)
 		for key in kwargs.keys():
 			# cf. http://bit.ly/1qO35ig
 			if key in [ k for k, v in self.__class__.__dict__.items() if type(v) is property ]:
