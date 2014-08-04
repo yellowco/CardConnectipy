@@ -10,6 +10,11 @@ class PaymentMethod(object):
 		self.accttype = None	# oneof PPAL, PAID, GIFT, PDEBIT in PUT, oneof VISA, MC, DISC, ECHK in GET
 		self.defaultacct = None
 		for key in kwargs.keys():
+			# only update the appropriate class var if
+			#	a.) var in self.__dict__
+			#	b.) var is an @property
+			#	if var is @property, the appropriate @var.setter is called to
+			#	update the object instance appropriately
 			# cf. http://bit.ly/1qO35ig
 			if key in [ k for k, v in self.__class__.__dict__.items() if type(v) is property ]:
 				setattr(self, key, kwargs.pop(key))
