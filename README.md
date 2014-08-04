@@ -1,6 +1,6 @@
 CardConnectPy
 ====
 
-Python bindings for the CardConnect API
+Python bindings for the CardConnect API (http://www.cardconnect.com/developer/docs/)
 
-http://www.cardconnect.com/developer/docs/
+Conforms to FortePy's API (https://github.com/yellowco/FortePy/)

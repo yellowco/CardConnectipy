@@ -6,6 +6,7 @@ class Transaction(object):
 	def __init__(self, **kwargs):
 		self.retref = None
 		self.amount = None
+		self.authcode = None
 		self.__dict__.update(kwargs)
 
 	@property
@@ -44,6 +45,21 @@ class Transaction(object):
 		self.deserialize(self.inquire())
 
 		return (resp['respstat'] == 'A', resp['retref'], resp)
+
+	# capture AUTH request for settlement
+	def capture(self, amount=None):
+		if self.authcode == None:
+			self.deserialize(self.inquire()[2])
+
+		payload = {
+			'merchid':Config.MERCHANT_ID,
+			'retref':self.retref,
+			'authcode':self.authcode,
+			'amount':self.amount if amount == None else amount,
+		}
+		resp = requests.put('%s/capture' % (Config.BASE_URL), auth=(Config.USERNAME, Config.PASSWORD0, data=json.dumps(payload), headers=Config.HEADERS['json']).json()
+		resp['amount'] = str(int(float(resp['amount']) * 100))
+		return (True, resp['retref'], resp)
 
 	# REFUND request -- possible to issue partial refunds
 	def refund(self, amount=None):

@@ -1,3 +1,4 @@
+import time
 from PaymentMethod import PaymentMethod
 
 class CreditCard(PaymentMethod):
@@ -11,9 +12,81 @@ class CreditCard(PaymentMethod):
 		self.expiry = None
 		super(CreditCard, self).__init__(**kwargs)
 
+	###
+	# API calls
+	###
+
 	@staticmethod
 	def create(**kwargs):
 		return CreditCard(**kwargs)
+
+	@property
+	def card_number(self):
+		return self.account
+
+	@card_number.setter
+	def card_number(self, value):
+		self.account = value
+
+	@property
+	def expiration_date(self):
+		return time.strptime(self.expiry, "%m%Y")
+
+	@expiration_date.setter
+	def expiration_date(self, value):
+		self.expiry = time.strftime('%m%Y', value)
+
+	@property
+	def card_type(self):
+		raise NotImplementedError
+
+	@card_type.setter
+	def card_type(self, value):
+		raise NotImplementedError
+
+	@property
+	def is_procurement_card(self):
+		raise NotImplementedError
+
+	@is_procurement_card.setter
+	def is_procurement_card(self, value):
+		raise NotImplementedError
+
+	@property
+	def data(self):
+		raise NotImplementedError
+
+	# amount to be gained by the company
+	def sale(self, amount, cvv=None):
+		if(cvv == None):
+			cvv = getattr(self, 'cvv', None)
+		return super(CreditCard, self).sale(amount=amount, cvv2=cvv)
+
+	def authorization(self, amount, cvv=None):
+		if(cvv == None):
+			cvv = getattr(self, 'cvv', None)
+		return super(CreditCard, self).auth(amount=amount, cvv2=cvv)
+
+	# force transaction
+	def preauthorization(self, amount, cvv=None):
+		raise NotImplementedError
+
+	def capture(self, amount, cvv=None):
+		return super(CreditCard, self).capture(amount=amount, cvv2=cvv)
+
+	# amount to be sent back to user -- amount is therefore treated as NEGATIVE in AUTH request
+	# input as a POSITIVE number
+	def credit(self, amount, cvv=None):
+		if(cvv == None):
+			cvv = getattr(self, 'cvv', None)
+		return self.sale(amount=-amount, cvv=cvv)
+
+	def balance_inquiry(self, amount, cvv=None):
+		raise NotImplementedError
+
+	###
+	# housekeeping functions
+	###
 
 	def serialize(self):
 		dict = super(CreditCard, self).serialize()
@@ -21,30 +94,6 @@ class CreditCard(PaymentMethod):
 			'expiry':'' if self.expiry == None else self.expiry
 		})
 		return dict
-
-	# base AUTHORIZATION request
-	def auth(self, amount=None, cvv=None, **kwargs):
-		if(cvv == None):
-			cvv = getattr(self, 'cvv', None)
-		return super(CreditCard, self).auth(amount=amount, cvv2=cvv, **kwargs)
-
-	def capture(self, amount=None, cvv=None, **kwargs):
-		if(cvv == None):
-			cvv = getattr(self, 'cvv', None)
-		return super(CreditCard, self).capture(amount=amount, cvv2=cvv, **kwargs)
-
-	# amount to be gained by the company
-	def sale(self, amount=None, cvv=None):
-		if(cvv == None):
-			cvv = getattr(self, 'cvv', None)
-		return self.capture(amount=amount, cvv=cvv)
-
-	# amount to be sent back to user -- amount is therefore treated as NEGATIVE in AUTH request
-	# input as a POSITIVE number
-	def credit(self, amount=None, cvv=None):
-		if(cvv == None):
-			cvv = getattr(self, 'cvv', None)
-		return self.capture(amount=-amount, cvv=cvv)
 
 	# shorthand for auth(0, cvv)
 	def verify(self, cvv=None):

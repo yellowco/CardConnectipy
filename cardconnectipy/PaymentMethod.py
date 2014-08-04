@@ -9,6 +9,7 @@ class PaymentMethod(object):
 		self.account = None	# tokenized card / bank account number
 		self.accttype = None	# oneof PPAL, PAID, GIFT, PDEBIT in PUT, oneof VISA, MC, DISC, ECHK in GET
 		self.defaultacct = None
+		self.retref = None	# the current tx being examined
 		self.__dict__.update(kwargs)
 
 	def serialize(self):
@@ -82,7 +83,7 @@ class PaymentMethod(object):
 
 	# shorthand for auth(0)
 	def verify(self, **kwargs):
-		return PaymentMethod.auth(self, amount='1', **kwargs)
+		return PaymentMethod.auth(self, amount='0', **kwargs)
 
 	def tokenize(self):
 		if(self.account != None):
@@ -90,5 +91,15 @@ class PaymentMethod(object):
 
 	# utilize AUTHORIZE-CAPTURE request feature
 	# cf. http://bit.ly/1qzs8p1 for additional fields to present to the AUTHORIZATION request payload
-	def capture(self, amount=None, **kwargs):
+	def sale(self, amount=None, **kwargs):
 		return PaymentMethod.auth(self, amount=amount, capture='Y', **kwargs)
+
+	def capture(self, amount=None):
+		if self.retref == None:
+			raise AttributeError("payment method retref not set")
+		Transaction.retrieve(id=self.retref).capture(amount=amount)
+
+	def void(self, amount=None):
+		if self.retref == None:
+			raise AttributeError("payment method retref not set")
+		Transaction.retrieve(id=self.retref).void(amount=amount)
