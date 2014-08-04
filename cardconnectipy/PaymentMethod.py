@@ -69,9 +69,10 @@ class PaymentMethod(object):
 			'amount':str(amount),
 		}
 		if(self.client != None):
-			payload = dict(payload.items() + self.client.serialize().items())
+			payload.update(self.client.serialize())
 		# cvv, etc. in here as well
-		payload = dict(payload.items() + kwargs.items() + self.serialize().items())
+		payload.update(kwargs)
+		payload.update(self.serialize())
 		resp = requests.put('%s/auth' % (Config.BASE_URL), auth=(Config.USERNAME, Config.PASSWORD), data=json.dumps(payload), headers=Config.HEADERS['json']).json()
 		# custom filtering of response codes would be preferred to further rule out suspicious transactions
 		# suggested filter (by the app) by cvvresp, authcode, etc.
