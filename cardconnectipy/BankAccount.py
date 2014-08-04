@@ -4,7 +4,8 @@ class BankAccount(PaymentMethod):
 	CHECKING = 1
 	SAVINGS = 2
 	def __init__(self, **kwargs):
-		self.bankaba = None				# routing number -- self.account is now the banking account number instead
+		# bank routing number -- self.account is now the banking account number instead
+		self.bankaba = None
 		PaymentMethod.__init__(self, **kwargs)
 
 	@staticmethod
