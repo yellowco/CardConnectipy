@@ -23,6 +23,11 @@ class PaymentMethod(object):
 	def profileid(self):
 		return self.client.id
 
+	# returns if the account number is a token or plaintext
+	@property
+	def is_token(self):
+		return self.acctid != None
+
 	def deserialize(self, data):
 		for key, value in data.items():
 			setattr(self, key, value)
