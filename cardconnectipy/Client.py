@@ -47,7 +47,8 @@ class Client(object):
 			for account in response:
 				if 'expiry' in account:
 					out.append(CreditCard(**account))
-				if 'bankaba' in account:
+				# if 'bankaba' in account:
+				elif account.get('accttype', None) == 'ECHK':
 					out.append(BankAccount(**account))
 			self._payment_methods = out
 		return self._payment_methods
