@@ -79,6 +79,7 @@ class PaymentMethod(DirtyDetector):
 		}
 		payload.update(self.serialize())
 		self.deserialize(requests.put('%s/profile' % (Config.BASE_URL), data=json.dumps(payload), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
+		super(DirtyDetector, self).save()
 
 	@staticmethod
 	def retrieve(id):
