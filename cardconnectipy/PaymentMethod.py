@@ -106,10 +106,8 @@ class PaymentMethod(object):
 		if(self.account != None):
 			resp = PaymentMethod.auth(self, amount='0', tokenize='Y')
 			# there was a problem with authorizing a zero-value card -- this indicates an invalid card number
-			if 'token' not in resp[2] and not resp[0]:
-				raise AttributeError("invalid card number")
-			elif 'token' not in resp[2]:
-				raise Exception("unknown error")
+			if 'token' not in resp[2]:
+				raise AttributeError("invalid account / routing number")
 			return resp[2]['token']
 
 	# utilize AUTHORIZE-CAPTURE request feature

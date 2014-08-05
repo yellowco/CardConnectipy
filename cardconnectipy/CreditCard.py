@@ -38,11 +38,11 @@ class CreditCard(PaymentMethod):
 
 	@property
 	def card_type(self):
-		raise NotImplementedError
+		return self.accttype
 
 	@card_type.setter
 	def card_type(self, value):
-		raise NotImplementedError
+		self.accttype = value
 
 	@property
 	def is_procurement_card(self):

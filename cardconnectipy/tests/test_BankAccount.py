@@ -19,7 +19,7 @@ class PaymentMethodTest(unittest.TestCase):
 		account = BankAccount.create(
 			account_holder='John Customer',
 			account_number='1234567845390',
-			routing_number='253271806',
+			routing_number='122100024',
 			type=BankAccount.CHECKING)
 		account.random_data = 'yes'
 		client.add_payment_method(account)
@@ -34,7 +34,7 @@ class PaymentMethodTest(unittest.TestCase):
 		client.add_payment_method(BankAccount.create(
 			account_holder='John Customer',
 			account_number='1234567845390',
-			routing_number='253271806',
+			routing_number='122100024',
 			type=BankAccount.CHECKING,
 			random_data='yes',
 			note='test'))
