@@ -1,8 +1,9 @@
+from libs.dirtypy.DirtyDetector import DirtyDetector
 import Config
 import requests
 import json
 
-class PaymentMethod(object):
+class PaymentMethod(DirtyDetector):
 	def __init__(self, **kwargs):
 		self.client = None
 		self.acctid = None
@@ -14,25 +15,7 @@ class PaymentMethod(object):
 		self.note = None
 		self.random_data = None
 
-		property_keys = [ k for k, v in self.__class__.__dict__.items() if type(v) is property ]
-		for key in kwargs.keys():
-			# only update the appropriate class var if
-			#	a.) var in self.__dict__
-			#	b.) var is an @property (var in self.__class__.__dict__)
-			#	if var is @property, the appropriate @var.setter is called to
-			#	update the object instance appropriately (if property.fset exists)
-			# cf. http://bit.ly/1qO35ig
-			if key in property_keys:
-				# ensure the property is not read only -- there exists an X.setter for this property
-				# cf. http://bit.ly/1spbmLm
-				if self.__class__.__dict__[key].fset != None:
-					try:
-						setattr(self, key, kwargs.pop(key))
-					# catch all calls which may be deprecated, unsupported, etc.
-					except NotImplementedError:
-						pass
-			elif key in self.__dict__:
-				setattr(self, key, kwargs.pop(key))
+		super(PaymentMethod, self).__init__(**kwargs)
 
 	###
 	# API calls
@@ -84,6 +67,8 @@ class PaymentMethod(object):
 			requests.delete('%s/profile/%s/%s' % (Config.BASE_URL, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))
 
 	def save(self):
+		if (not self.is_dirty) and self.acctid != None:
+			return
 		# do we need to call client.save () if client calls payment_method.save()
 		# self.client.save()
 		if(self.acctid == None):
