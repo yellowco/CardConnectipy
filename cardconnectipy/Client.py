@@ -42,7 +42,7 @@ class Client(object):
 	@property
 	def payment_methods(self):
 		if len(self._payment_methods) == 0:
-			response = requests.get("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()
+			response = requests.get("%s/profile/%s//%s" % (Config.BASE_URL, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()
 			out = []
 			for account in response:
 				if 'expiry' in account:
@@ -58,11 +58,11 @@ class Client(object):
 		self._payment_methods.append(method)		
 
 	def delete(self):
-		requests.delete("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))
+		requests.delete("%s/profile/%s//%s" % (Config.BASE_URL, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))
 
 	def save(self):
 		# need to get own profileid to pass onto payment_methods
-		resp = self.deserialize(requests.put("https://%s:%s/cardconnect/rest/profile" % (Config.HOSTNAME, Config.PORT), data=json.dumps(self.serialize()), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
+		resp = self.deserialize(requests.put("%s/profile" % (Config.BASE_URL), data=json.dumps(self.serialize()), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
 		for payment_method in self.payment_methods:
 			if not payment_method.acctid:
 				payment_method.save() # this isn't quite right, doesn't track modified cards.
@@ -70,7 +70,7 @@ class Client(object):
 
 	@staticmethod
 	def retrieve(id):
-		response = requests.get("https://%s:%s/cardconnect/rest/profile/%s//%s" % (Config.HOSTNAME, Config.PORT, id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()
+		response = requests.get("%s/profile/%s//%s" % (Config.BASE_URL, id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()
 		for account in response:
 			if account.get('defaultacct') == 'Y':
 				return Client(**account)

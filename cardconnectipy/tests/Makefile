@@ -1,5 +1,5 @@
 # because I keep trigger-twiching "make" in the shell
-all: clean
+test: clean
 	nosetests *py; make clean
 
 clean:
