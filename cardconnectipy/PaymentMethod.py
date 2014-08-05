@@ -29,7 +29,7 @@ class PaymentMethod(object):
 			'defaultacct':'' if self.defaultacct == None else self.defaultacct,
 			'profile':'' if self.client == None else self.client.id + '/',
 			'account':'' if self.account == None else self.account,
-			'accttype':'' if self.accttype == None else self.accttype
+			'accttype':'' if self.accttype == None else self.accttype,
 		}
 
 	@property
@@ -63,7 +63,11 @@ class PaymentMethod(object):
 		if(self.acctid == None):
 			# account numbers must be tokens
 			self.account = self.tokenize()
-		self.deserialize(requests.put('%s/profile' % (Config.BASE_URL), data=json.dumps(self.serialize()), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
+		payload = {
+			'merchid':Config.MERCHANT_ID,
+		}
+		payload.update(self.serialize())
+		self.deserialize(requests.put('%s/profile' % (Config.BASE_URL), data=json.dumps(payload), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
 
 	@staticmethod
 	def retrieve(id):
@@ -87,12 +91,10 @@ class PaymentMethod(object):
 		# cvv, etc. in here as well
 		payload.update(kwargs)
 		payload.update(self.serialize())
-		print payload
 		resp = requests.put('%s/auth' % (Config.BASE_URL), auth=(Config.USERNAME, Config.PASSWORD), data=json.dumps(payload), headers=Config.HEADERS['json']).json()
 		resp['amount'] = str(int(float(resp['amount']))  * 100)
 		# custom filtering of response codes would be preferred to further rule out suspicious transactions
 		# suggested filter (by the app) by cvvresp, authcode, etc.
-		print resp
 		return (resp['respstat'] == 'A', resp['retref'], resp)
 
 	# shorthand for auth(0) -- sees if the payment method is in good standing
