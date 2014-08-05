@@ -31,6 +31,8 @@ class PaymentMethod(object):
 					# catch all calls which may be deprecated, unsupported, etc.
 					except NotImplementedError:
 						pass
+			elif key in self.__dict__:
+				setattr(self, key, kwargs.pop(key))
 
 	###
 	# API calls
