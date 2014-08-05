@@ -14,15 +14,39 @@ class PaymentMethod(object):
 		self.note = None
 		self.random_data = None
 
+		property_keys = [ k for k, v in self.__class__.__dict__.items() if type(v) is property ]
 		for key in kwargs.keys():
 			# only update the appropriate class var if
 			#	a.) var in self.__dict__
-			#	b.) var is an @property
+			#	b.) var is an @property (var in self.__class__.__dict__)
 			#	if var is @property, the appropriate @var.setter is called to
-			#	update the object instance appropriately
+			#	update the object instance appropriately (if property.fset exists)
 			# cf. http://bit.ly/1qO35ig
-			if key in [ k for k, v in self.__class__.__dict__.items() if type(v) is property ]:
-				setattr(self, key, kwargs.pop(key))
+			if key in property_keys:
+				# ensure the property is not read only -- there exists an X.setter for this property
+				# cf. http://bit.ly/1spbmLm
+				if self.__class__.__dict__[key].fset != None:
+					try:
+						setattr(self, key, kwargs.pop(key))
+					# catch all calls which may be deprecated, unsupported, etc.
+					except NotImplementedError:
+						pass
+
+	###
+	# API calls
+	###
+
+	@property
+	def type(self):
+		return self.accttype
+        
+	@type.setter
+	def type(self, value):
+		self.accttype = value
+
+	###
+	# housekeeping functions
+	###
 
 	def serialize(self):
 		return {

@@ -37,14 +37,6 @@ class CreditCard(PaymentMethod):
 		self.expiry = value.strftime('%m%y')
 
 	@property
-	def card_type(self):
-		return self.accttype
-
-	@card_type.setter
-	def card_type(self, value):
-		self.accttype = value
-
-	@property
 	def is_procurement_card(self):
 		raise NotImplementedError
 

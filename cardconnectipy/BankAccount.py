@@ -32,14 +32,6 @@ class BankAccount(PaymentMethod):
 		self.bankaba = value
 
 	@property
-	def type(self):
-		return self.accttype
-
-	@type.setter
-	def type(self, value):
-		self.accttype = value
-
-	@property
 	def data(self):
 		raise NotImplementedError
 
