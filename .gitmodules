@@ -1,3 +1,3 @@
-[submodule "dirtypy"]
+[submodule "mudpy"]
 	path = mudpy
-	url = https://www.github.com/cripplet/dirtypy
+	url = https://www.github.com/cripplet/mudpy

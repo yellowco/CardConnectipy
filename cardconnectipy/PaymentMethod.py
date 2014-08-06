@@ -1,4 +1,4 @@
-from libs.dirtypy.DirtyDetector import DirtyDetector
+from libs.mudpy.DirtyDetector import DirtyDetector
 import Config
 import requests
 import json
