@@ -1,9 +1,9 @@
-from libs.mudpy.DirtyDetector import DirtyDetector
+from libs.mudpy.Mud import Mud
 import Config
 import requests
 import json
 
-class PaymentMethod(DirtyDetector):
+class PaymentMethod(Mud):
 	def __init__(self, **kwargs):
 		self.client = None
 		self.acctid = None
@@ -79,7 +79,7 @@ class PaymentMethod(DirtyDetector):
 		}
 		payload.update(self.serialize())
 		self.deserialize(requests.put('%s/profile' % (Config.BASE_URL), data=json.dumps(payload), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
-		super(DirtyDetector, self).save()
+		super(Mud, self).save()
 
 	@staticmethod
 	def retrieve(id):
