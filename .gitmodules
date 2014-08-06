@@ -1,4 +1,3 @@
 [submodule "mudpy"]
 	path = mudpy
 	url = https://github.com/cripplet/mudpy.git
-	branch = master
