@@ -29,6 +29,16 @@ class PaymentMethod(Mud):
 	def type(self, value):
 		self.accttype = value
 
+	@property
+	def account_holder(self):
+		return self.client.name
+
+	@account_holder.setter
+	def account_holder(self, v):
+		# if this is implemented, then we will need to save client upon PaymentMethod.save
+		#	this will lead to circular saving unless Client also inherits MudPy
+		raise NotImplemented
+
 	###
 	# housekeeping functions
 	###
@@ -67,7 +77,7 @@ class PaymentMethod(Mud):
 			requests.delete('%s/profile/%s/%s' % (Config.BASE_URL, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))
 
 	def save(self):
-		if (not self.is_dirty) and self.acctid != None:
+		if (not self.is_dirty) and (self.acctid != None):
 			return
 		# do we need to call client.save () if client calls payment_method.save()
 		# self.client.save()

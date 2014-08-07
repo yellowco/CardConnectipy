@@ -45,9 +45,10 @@ class Client(object):
 			response = requests.get("%s/profile/%s//%s" % (Config.BASE_URL, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()
 			out = []
 			for account in response:
+				# credit / debit cards need the expiry field in the profile
 				if 'expiry' in account:
 					out.append(CreditCard(**account))
-				# if 'bankaba' in account:
+				# bank accounts are saved as accttype == ECHK
 				elif account.get('accttype', None) == 'ECHK':
 					out.append(BankAccount(**account))
 			self._payment_methods = out
@@ -64,8 +65,7 @@ class Client(object):
 		# need to get own profileid to pass onto payment_methods
 		resp = self.deserialize(requests.put("%s/profile" % (Config.BASE_URL), data=json.dumps(self.serialize()), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
 		for payment_method in self.payment_methods:
-			if not payment_method.acctid:
-				payment_method.save() # this isn't quite right, doesn't track modified cards.
+			payment_method.save()
 		return resp
 
 	@staticmethod
