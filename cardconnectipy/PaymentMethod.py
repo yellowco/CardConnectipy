@@ -1,4 +1,5 @@
 from libs.mudpy.Mud import Mud
+import Client
 import Config
 import requests
 import json
@@ -51,6 +52,7 @@ class PaymentMethod(Mud):
 			'accttype':'' if self.accttype == None else self.accttype,
 		}
 
+	# the profileid is NOT saved upon a profile GET request
 	@property
 	def profileid(self):
 		return self.client.id
@@ -91,10 +93,14 @@ class PaymentMethod(Mud):
 		self.deserialize(requests.put('%s/profile' % (Config.BASE_URL), data=json.dumps(payload), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
 		super(Mud, self).save()
 
+	# CAVEAT -- PM.retrieve does not get the associated client
 	@staticmethod
 	def retrieve(id):
 		# id of form "<profileid>/<acctid>"
-		return PaymentMethod(requests.get('%s/profile/%s/%s/' % (Config.BASE_URL, id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()[0])
+		resp = requests.get('%s/profile/%s/%s/' % (Config.BASE_URL, id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD)).json()[0]
+		c = Client.retrieve(resp.pop('profileid'))
+		p.client = c
+		return p
 
 	@staticmethod
 	def create(**kwargs):
