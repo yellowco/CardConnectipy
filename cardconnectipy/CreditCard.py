@@ -49,29 +49,29 @@ class CreditCard(PaymentMethod):
 	def data(self):
 		raise NotImplementedError
 
-	def sale(self, amount, cvv=None):
-		if(cvv == None):
-			cvv = getattr(self, 'cvv', None)
-		return super(CreditCard, self).sale(amount=amount, cvv2=cvv)
+	def sale(self, amount, cvv2=None):
+		if(cvv2 == None):
+			cvv2 = getattr(self, 'cvv2', None)
+		return super(CreditCard, self).sale(amount=amount, cvv2=cvv2)
 
-	def authorization(self, amount, cvv=None):
-		if(cvv == None):
-			cvv = getattr(self, 'cvv', None)
-		return super(CreditCard, self).auth(amount=amount, cvv2=cvv)
+	def authorization(self, amount, cvv2=None):
+		if(cvv2 == None):
+			cvv2 = getattr(self, 'cvv2', None)
+		return super(CreditCard, self).auth(amount=amount, cvv2=cvv2)
 
 	# force transaction
-	def force(self, amount, cvv=None):
+	def force(self, amount, cvv2=None):
 		raise NotImplementedError
 
-	def capture(self, amount, cvv=None):
-		return super(CreditCard, self).capture(amount=amount, cvv2=cvv)
+	def capture(self, amount, cvv2=None):
+		return super(CreditCard, self).capture(amount=amount, cvv2=cvv2)
 
-	def credit(self, amount, cvv=None):
-		if(cvv == None):
-			cvv = getattr(self, 'cvv', None)
-		return super(CreditCard, self).credit(amount=amount, cvv=cvv)
+	def credit(self, amount, cvv2=None):
+		if(cvv2 == None):
+			cvv2 = getattr(self, 'cvv2', None)
+		return super(CreditCard, self).credit(amount=amount, cvv2=cvv2)
 
-	def balance_inquiry(self, amount, cvv=None):
+	def balance_inquiry(self, amount, cvv2=None):
 		raise NotImplementedError
 
 	###
@@ -86,16 +86,8 @@ class CreditCard(PaymentMethod):
 		})
 		return dict
 
-	# shorthand for auth(0, cvv)
-	def verify(self, cvv=None):
-		if(cvv == None):
-			cvv = getattr(self, 'cvv', None)
-		return super(CreditCard, self).verify(cvv2=cvv)
-
-	@property
-	def cvv(self):
-		return self.cvv2
-
-	@cvv.setter
-	def cvv(self, v):
-		self.cvv2 = v
+	# shorthand for auth(0, cvv2)
+	def verify(self, cvv2=None):
+		if(cvv2 == None):
+			cvv2 = getattr(self, 'cvv2', None)
+		return super(CreditCard, self).verify(cvv2=cvv2)
