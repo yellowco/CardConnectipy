@@ -59,7 +59,7 @@ class CreditCard(PaymentMethod):
 		return super(CreditCard, self).auth(amount=amount, cvv2=cvv)
 
 	# force transaction
-	def preauthorization(self, amount, cvv=None):
+	def force(self, amount, cvv=None):
 		raise NotImplementedError
 
 	def capture(self, amount, cvv=None):
