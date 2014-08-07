@@ -10,6 +10,7 @@ class CreditCard(PaymentMethod):
 	JCB = None
 	def __init__(self, **kwargs):
 		self.expiry = None
+		self.cvv2 = None
 		super(CreditCard, self).__init__(**kwargs)
 
 	###
@@ -80,7 +81,8 @@ class CreditCard(PaymentMethod):
 	def serialize(self):
 		dict = super(CreditCard, self).serialize()
 		dict.update({
-			'expiry':'' if self.expiry == None else self.expiry
+			'expiry':'' if self.expiry == None else self.expiry,
+			'cvv2':'' if self.cvv2 == None else self.cvv2
 		})
 		return dict
 
@@ -89,3 +91,11 @@ class CreditCard(PaymentMethod):
 		if(cvv == None):
 			cvv = getattr(self, 'cvv', None)
 		return super(CreditCard, self).verify(cvv2=cvv)
+
+	@property
+	def cvv(self):
+		return self.cvv2
+
+	@cvv.setter
+	def cvv(self, v):
+		self.cvv2 = v
