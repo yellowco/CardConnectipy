@@ -14,6 +14,7 @@ class Client(object):
 		self.ssn = None
 		self.email = None
 		self.profileid = None
+		self.acctid = None
 		self.__dict__.update(kwargs)
 		self._payment_methods = []
 
@@ -24,7 +25,8 @@ class Client(object):
 			'email':self.email,
 			'merchid':Config.MERCHANT_ID,
 			'defaultacct':'Y',
-			'profileupdate':'Y'
+			'profileupdate':'Y',
+			'account':'0000000000000',
 		}
 		data.update(self.billing_address.serialize())
 		data.update(self.drivers_license.serialize())
@@ -51,12 +53,15 @@ class Client(object):
 				# bank accounts are saved as accttype == ECHK
 				elif account.get('accttype', None) == 'ECHK':
 					out.append(BankAccount(**account))
+			for account in out:
+				account.client = self
 			self._payment_methods = out
 		return self._payment_methods
 	
 	def add_payment_method(self, method):
+		print("ADDING A PAYMENT METHOD LOLOLOL")
 		method.client = self
-		self._payment_methods.append(method)		
+		self._payment_methods.append(method)
 
 	def delete(self):
 		requests.delete("%s/profile/%s//%s" % (Config.BASE_URL, self.id, Config.MERCHANT_ID), auth=(Config.USERNAME, Config.PASSWORD))

@@ -40,6 +40,12 @@ class PaymentMethod(Mud):
 		#	this will lead to circular saving unless Client also inherits MudPy
 		raise NotImplemented
 
+	@property
+	def can_debit(self):
+		if not 'respstat' in self.__dict__:
+			self.deserialize(self.verify()[2])
+		return(self.respstat == 'A')
+
 	###
 	# housekeeping functions
 	###
@@ -90,8 +96,9 @@ class PaymentMethod(Mud):
 			'merchid':Config.MERCHANT_ID,
 		}
 		payload.update(self.serialize())
-		self.deserialize(requests.put('%s/profile' % (Config.BASE_URL), data=json.dumps(payload), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json())
-		super(Mud, self).save()
+		response = requests.put('%s/profile' % (Config.BASE_URL), data=json.dumps(payload), auth=(Config.USERNAME, Config.PASSWORD), headers=Config.HEADERS['json']).json()
+		self.deserialize(response)
+		super(PaymentMethod, self).save()
 
 	# CAVEAT -- PM.retrieve does not get the associated client
 	@staticmethod
