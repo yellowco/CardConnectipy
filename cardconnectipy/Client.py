@@ -59,7 +59,6 @@ class Client(object):
 		return self._payment_methods
 	
 	def add_payment_method(self, method):
-		print("ADDING A PAYMENT METHOD LOLOLOL")
 		method.client = self
 		self._payment_methods.append(method)
 
